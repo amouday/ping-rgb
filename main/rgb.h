@@ -18,7 +18,14 @@ typedef struct rgb_led {
 	uint32_t		duty;
 } rgb_led_t;
 
+typedef struct color {
+	uint32_t	red;
+	uint32_t	green;
+	uint32_t	blue;
+} color_t;
+
 void rgb_init();
+void rgb_set_color(color_t);
 int rgb_set(rgb_t, unsigned int);
 int rgb_set_raw(rgb_t, uint32_t);
 

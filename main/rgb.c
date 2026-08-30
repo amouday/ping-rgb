@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "rgb_config.h"
 #include "rgb.h"
 
@@ -71,4 +73,12 @@ rgb_set_raw(rgb_t rgb, uint32_t duty)
 	ESP_ERROR_CHECK(ledc_update_duty(mode, chan));
 
 	return 0;
+}
+
+void
+rgb_set_color(color_t color)
+{
+	assert(rgb_set_raw(RGB_RED, color.red) == 0);
+	assert(rgb_set_raw(RGB_GREEN, color.green) == 0);
+	assert(rgb_set_raw(RGB_BLUE, color.blue) == 0);
 }

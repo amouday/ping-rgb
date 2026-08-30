@@ -28,8 +28,28 @@ wifi_config_t ap_config = {
 	},
 };
 
+enum {
+	RED,
+	ORANGE,
+	YELLOW,
+	GREEN,
+	BLUE,
+	INDIGO,
+	VIOLET,
+	NUM_COLORS,
+};
+
+color_t rainbow[NUM_COLORS] = {
+	[RED] 		= { .red = 0x3fff, .green = 0x0, .blue = 0x0 },
+	[ORANGE] 	= { .red = 0x3fff, .green = 0x666, .blue = 0x0 },
+	[YELLOW] 	= { .red = 0x2ccc, .green = 0x1332, .blue = 0x0 },
+	[GREEN] 	= { .red = 0x0, .green = 0x3fff, .blue = 0x0 },
+	[BLUE] 		= { .red = 0x0, .green = 0x0, .blue = 0x3fff },
+	[INDIGO] 	= { .red = 0x1332, .green = 0x0, .blue = 0x3fff },
+	[VIOLET] 	= { .red = 0x3fff, .green = 0x3e8, .blue = 0x3fff },
+};
+
 void setup_ap();
-void rgb_init();
 void configure_wifi();
 void configure_ip();
 void err_halt(char*,...);
@@ -39,17 +59,25 @@ void hexdump_line(uint8_t *, size_t);
 void handle_packet(uint8_t *, size_t);
 int extract_src_addr(char *, uint8_t *);
 
+void color_test();
+
 void 
 app_main(void)
 {
 	setup_ap();
 	rgb_init();
 
-	rgb_set(RGB_RED, 50);
-	rgb_set(RGB_GREEN, 30);
-	rgb_set(RGB_BLUE, 100);
+	color_test();
+}
 
+void 
+color_test()
+{
 	while (1) {
+		for (int i = 0; i < NUM_COLORS; i++) {
+			rgb_set_color(rainbow[i]);
+			vTaskDelay(500 / portTICK_PERIOD_MS);
+		}
 	}
 }
 
