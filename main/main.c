@@ -7,7 +7,6 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 
-#include "main.h"
 #include "ap_config.h"
 #include "rgb_config.h"
 #include "rgb.h"
