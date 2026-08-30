@@ -29,6 +29,7 @@ void setup_ap();
 void configure_wifi();
 void configure_ip();
 void err_halt(char*,...);
+void packet_test();
 void hexdump(uint8_t *, size_t);
 void hexdump_line(uint8_t *, size_t);
 void handle_packet(uint8_t *, size_t);
@@ -37,11 +38,15 @@ int extract_src_addr(char *, uint8_t *);
 void 
 app_main(void)
 {
+	setup_ap();
+}
+
+void 
+packet_test()
+{
 	int			sockfd;
 	uint8_t		buf[BUFSIZE];
 	ssize_t		recvlen;
-
-	setup_ap();
 
 	if ((sockfd = lwip_socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
 		err_halt("lwip_socket failed");
