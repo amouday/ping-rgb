@@ -45,14 +45,9 @@ app_main(void)
 	setup_ap();
 	rgb_init();
 
-	ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_RED, 8192));
-	ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_RED));
-
-	ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_GREEN, 500));
-	ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_GREEN));
-
-	ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_BLUE, 5000));
-	ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_BLUE));
+	rgb_set(RGB_RED, 8192);
+	rgb_set(RGB_GREEN, 16383);
+	rgb_set(RGB_BLUE, 400);
 
 	while (1) {
 	}

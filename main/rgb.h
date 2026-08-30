@@ -4,12 +4,12 @@
 #include <stdint.h>
 #include "hal/ledc_types.h"
 
-enum {
+typedef enum rgb {
 	RGB_RED,
 	RGB_BLUE,
 	RGB_GREEN,
 	RGB_MAX,
-};
+} rgb_t;
 
 typedef struct rgb_led {
 	int				gpio;
@@ -19,5 +19,6 @@ typedef struct rgb_led {
 } rgb_led_t;
 
 void rgb_init();
+int rgb_set(rgb_t, uint32_t);
 
 #endif

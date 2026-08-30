@@ -40,3 +40,21 @@ rgb_init()
 	}
 }
 
+
+int
+rgb_set(rgb_t rgb, uint32_t duty)
+{
+	ledc_channel_t		chan;
+	ledc_mode_t			mode;
+
+	if (rgb >= RGB_MAX)
+		return -1;
+
+	chan = rgb_led[rgb].chan;
+	mode = rgb_led[rgb].speed_mode;
+
+	ESP_ERROR_CHECK(ledc_set_duty(mode, chan, duty));
+	ESP_ERROR_CHECK(ledc_update_duty(mode, chan));
+
+	return 0;
+}
