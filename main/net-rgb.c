@@ -48,22 +48,38 @@ color_t rainbow[NUM_COLORS] = {
 	[VIOLET] 	= { .red = 0x3fff, .green = 0x3e8, .blue = 0x3fff },
 };
 
+unsigned int color_index = RED;
+
 void setup_ap();
 void configure_wifi();
 void configure_ip();
 void packet_test();
+void dump_packet(uint8_t *, size_t);
 void handle_packet(uint8_t *, size_t);
-
 void color_test();
+char *rainbow_to_str(unsigned int);
 
 void 
 app_main(void)
 {
+	int			sockfd;
+	uint8_t		buf[BUFSIZE];
+	ssize_t		recvlen;
+
 	setup_ap();
 	rgb_init();
 
-	//color_test();
-	packet_test();
+	if ((sockfd = lwip_socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
+		err_halt("lwip_socket failed");
+
+	while (1) {
+		if ((recvlen = lwip_recv(sockfd, buf, BUFSIZE, 0)) == -1) {
+			ESP_LOGE("recv", "recv failed");
+			continue;
+		}
+
+		handle_packet(buf, recvlen);
+	}
 }
 
 void 
@@ -93,18 +109,32 @@ packet_test()
 			continue;
 		}
 
-		handle_packet(buf, recvlen);
+		dump_packet(buf, recvlen);
 	}
 }
 
-void 
+void
 handle_packet(uint8_t *packet, size_t len)
+{
+	dump_packet(packet, len);
+
+	if (color_index == NUM_COLORS)
+		color_index = RED;
+
+	printf("[+] Setting color to: '%s'\n", rainbow_to_str(color_index));
+	rgb_set_color(rainbow[color_index++]);
+
+	puts("");
+}
+
+void
+dump_packet(uint8_t *packet, size_t len)
 {
 	char		src_addr[INET_ADDRSTRLEN + 1];
 
 	extract_src_addr(src_addr, packet);
 	src_addr[INET_ADDRSTRLEN] = '\0';
-	printf("Recived ICMP packet from %s\n", src_addr);
+	printf("[+] Recived ICMP packet from: '%s'\n", src_addr);
 
 	hexdump(packet, len);
 
@@ -154,4 +184,19 @@ configure_ip()
 		err_halt("failed to convert netmask: %s", AP_IP_NETMASK);
 
 	ESP_ERROR_CHECK(esp_netif_set_ip_info(ap_handle, &ip));
+}
+
+char *
+rainbow_to_str(unsigned int color)
+{
+	switch (color) {
+	case RED:			return "Red";
+	case ORANGE:		return "Orange";
+	case YELLOW:		return "Yellow";
+	case GREEN:			return "Green";
+	case BLUE:			return "Blue";
+	case INDIGO:		return "Indigo";
+	case VIOLET:		return "Violet";
+	default:			return "Unknown";
+	}
 }
