@@ -40,9 +40,23 @@ rgb_init()
 	}
 }
 
+int 
+rgb_set(rgb_t rgb, unsigned int gradient)
+{
+	uint32_t		duty;
+	uint32_t		duty_max;
+
+	if (gradient > 100)
+		return -1;
+
+	duty_max = (1 << RGB_DUTY_RESOLUTION) - 1;
+	duty = duty_max * (((double) gradient) / 100);
+
+	return rgb_set_raw(rgb, duty);
+}
 
 int
-rgb_set(rgb_t rgb, uint32_t duty)
+rgb_set_raw(rgb_t rgb, uint32_t duty)
 {
 	ledc_channel_t		chan;
 	ledc_mode_t			mode;

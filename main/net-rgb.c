@@ -45,9 +45,9 @@ app_main(void)
 	setup_ap();
 	rgb_init();
 
-	rgb_set(RGB_RED, 8192);
-	rgb_set(RGB_GREEN, 16383);
-	rgb_set(RGB_BLUE, 400);
+	rgb_set(RGB_RED, 50);
+	rgb_set(RGB_GREEN, 30);
+	rgb_set(RGB_BLUE, 100);
 
 	while (1) {
 	}

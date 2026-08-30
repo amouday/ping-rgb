@@ -19,6 +19,7 @@ typedef struct rgb_led {
 } rgb_led_t;
 
 void rgb_init();
-int rgb_set(rgb_t, uint32_t);
+int rgb_set(rgb_t, unsigned int);
+int rgb_set_raw(rgb_t, uint32_t);
 
 #endif
