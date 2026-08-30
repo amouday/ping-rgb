@@ -63,7 +63,7 @@ handle_packet(uint8_t *packet, size_t len)
 
 	extract_src_addr(src_addr, packet);
 	src_addr[INET_ADDRSTRLEN] = '\0';
-	printf("Recived ICMP Message from %s\n", src_addr);
+	printf("Recived ICMP packet from %s\n", src_addr);
 
 	hexdump(packet, len);
 
