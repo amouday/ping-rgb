@@ -6,11 +6,22 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
+#include "driver/ledc.h"
+#include "hal/ledc_types.h"
+
 #include "ap_config.h"
 
 #define BUFSIZE				512
 #define HEXDUMP_LINELEN		16
 #define SRC_ADDR_OFFSET		12
+
+#define RGB_RED				9
+#define RGB_GREEN			8
+#define RGB_BLUE			7
+
+#define RGB_PWM_CHAN_RED	0
+#define RGB_PWM_CHAN_GREEN	1
+#define RGB_PWM_CHAN_BLUE	2
 
 esp_netif_t *ap_handle = 0;
 
@@ -26,6 +37,7 @@ wifi_config_t ap_config = {
 };
 
 void setup_ap();
+void rgb_init();
 void configure_wifi();
 void configure_ip();
 void err_halt(char*,...);
@@ -39,6 +51,51 @@ void
 app_main(void)
 {
 	setup_ap();
+	rgb_init();
+
+	ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_RED, 8192));
+	ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_RED));
+
+	ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_GREEN, 8192));
+	ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_GREEN));
+
+	ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_BLUE, 8192));
+	ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, RGB_PWM_CHAN_BLUE));
+
+	while (1) {
+	}
+}
+
+void 
+rgb_init()
+{
+	ledc_timer_config_t timer_config = {
+		.speed_mode 		= LEDC_LOW_SPEED_MODE,
+		.duty_resolution 	= LEDC_TIMER_14_BIT,
+		.timer_num 			= LEDC_TIMER_0,
+		.freq_hz 			= 1000, 
+		.clk_cfg 			= LEDC_USE_RC_FAST_CLK,
+	};
+
+	ledc_channel_config_t chan_config = {
+		.speed_mode		= LEDC_LOW_SPEED_MODE,
+		.timer_sel		= LEDC_TIMER_0,
+		.hpoint			= 0,
+	};
+
+	ESP_ERROR_CHECK(ledc_timer_config(&timer_config));
+
+	chan_config.gpio_num = RGB_RED;
+	chan_config.channel = RGB_PWM_CHAN_RED;
+	ESP_ERROR_CHECK(ledc_channel_config(&chan_config));
+
+	chan_config.gpio_num = RGB_GREEN;
+	chan_config.channel = RGB_PWM_CHAN_GREEN;
+	ESP_ERROR_CHECK(ledc_channel_config(&chan_config));
+
+	chan_config.gpio_num = RGB_BLUE;
+	chan_config.channel = RGB_PWM_CHAN_BLUE;
+	ESP_ERROR_CHECK(ledc_channel_config(&chan_config));
 }
 
 void 
