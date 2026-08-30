@@ -52,6 +52,7 @@ unsigned int color_index = RED;
 void ap_init();
 void configure_wifi();
 void configure_ip();
+void configure_dhcps();
 
 void handle_packet(uint8_t *, size_t);
 void dump_packet(uint8_t *, size_t);
@@ -153,7 +154,10 @@ configure_ip()
 		err_halt("failed to convert netmask: %s", AP_IP_NETMASK);
 
 	ESP_ERROR_CHECK(esp_netif_set_ip_info(ap_handle, &ip));
+
+	ESP_ERROR_CHECK(esp_netif_dhcps_start(ap_handle));
 }
+
 
 void 
 color_test()
