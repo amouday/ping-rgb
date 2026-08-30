@@ -7,25 +7,13 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 
+#include "main.h"
 #include "ap_config.h"
 #include "rgb_config.h"
 #include "rgb.h"
 #include "utils.h"
 
 #define BUFSIZE				512
-
-esp_netif_t *ap_handle = 0;
-
-wifi_config_t ap_config = {
-	.ap = {
-		.ssid = AP_SSID,
-		.password = AP_PASSWORD,
-		.ssid_len = AP_SSID_LEN,
-		.channel = AP_CHANNEL,
-		.authmode = AP_AUTH_MODE,
-		.max_connection = AP_MAX_CONNECTION,
-	},
-};
 
 enum {
 	RED,
@@ -48,14 +36,28 @@ color_t rainbow[NUM_COLORS] = {
 	[VIOLET] 	= { .red = 0x3fff, .green = 0x3e8, .blue = 0x3fff },
 };
 
+wifi_config_t ap_config = {
+	.ap = {
+		.ssid 			= AP_SSID,
+		.password 		= AP_PASSWORD,
+		.ssid_len 		= AP_SSID_LEN,
+		.channel 		= AP_CHANNEL,
+		.authmode 		= AP_AUTH_MODE,
+		.max_connection = AP_MAX_CONNECTION,
+	},
+};
+
+esp_netif_t *ap_handle = 0;
 unsigned int color_index = RED;
 
-void setup_ap();
+void ap_init();
 void configure_wifi();
 void configure_ip();
-void packet_test();
-void dump_packet(uint8_t *, size_t);
+
 void handle_packet(uint8_t *, size_t);
+void dump_packet(uint8_t *, size_t);
+void packet_test();
+
 void color_test();
 char *rainbow_to_str(unsigned int);
 
@@ -66,7 +68,7 @@ app_main(void)
 	uint8_t		buf[BUFSIZE];
 	ssize_t		recvlen;
 
-	setup_ap();
+	ap_init();
 	rgb_init();
 
 	if ((sockfd = lwip_socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
@@ -79,37 +81,6 @@ app_main(void)
 		}
 
 		handle_packet(buf, recvlen);
-	}
-}
-
-void 
-color_test()
-{
-	while (1) {
-		for (int i = 0; i < NUM_COLORS; i++) {
-			rgb_set_color(rainbow[i]);
-			vTaskDelay(500 / portTICK_PERIOD_MS);
-		}
-	}
-}
-
-void 
-packet_test()
-{
-	int			sockfd;
-	uint8_t		buf[BUFSIZE];
-	ssize_t		recvlen;
-
-	if ((sockfd = lwip_socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
-		err_halt("lwip_socket failed");
-
-	while (1) {
-		if ((recvlen = lwip_recv(sockfd, buf, BUFSIZE, 0)) == -1) {
-			ESP_LOGE("recv", "recv failed");
-			continue;
-		}
-
-		dump_packet(buf, recvlen);
 	}
 }
 
@@ -142,7 +113,7 @@ dump_packet(uint8_t *packet, size_t len)
 }
 
 void 
-setup_ap()
+ap_init()
 {
 	configure_wifi();
 	configure_ip();
@@ -160,7 +131,6 @@ configure_wifi()
 	ap_handle = esp_netif_create_default_wifi_ap();
 
 	ESP_ERROR_CHECK(esp_wifi_init(&init_config));
-
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
 	ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
 
@@ -184,6 +154,37 @@ configure_ip()
 		err_halt("failed to convert netmask: %s", AP_IP_NETMASK);
 
 	ESP_ERROR_CHECK(esp_netif_set_ip_info(ap_handle, &ip));
+}
+
+void 
+color_test()
+{
+	while (1) {
+		for (int i = 0; i < NUM_COLORS; i++) {
+			rgb_set_color(rainbow[i]);
+			vTaskDelay(500 / portTICK_PERIOD_MS);
+		}
+	}
+}
+
+void 
+packet_test()
+{
+	int			sockfd;
+	uint8_t		buf[BUFSIZE];
+	ssize_t		recvlen;
+
+	if ((sockfd = lwip_socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
+		err_halt("lwip_socket failed");
+
+	while (1) {
+		if ((recvlen = lwip_recv(sockfd, buf, BUFSIZE, 0)) == -1) {
+			ESP_LOGE("recv", "recv failed");
+			continue;
+		}
+
+		dump_packet(buf, recvlen);
+	}
 }
 
 char *
