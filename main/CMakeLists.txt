@@ -1,5 +1,5 @@
 idf_component_register(
-	SRCS "net-rgb.c"
+	SRCS "net-rgb.c" "rgb.c"
     INCLUDE_DIRS "."
 	PRIV_REQUIRES esp_wifi
 	PRIV_REQUIRES esp_event
