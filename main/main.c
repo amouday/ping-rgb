@@ -49,6 +49,8 @@ wifi_config_t ap_config = {
 esp_netif_t *ap_handle = 0;
 unsigned int color_index = RED;
 
+static const char *TAG = "ping-rgb";
+
 void ap_init();
 void configure_wifi();
 void configure_ip();
@@ -156,6 +158,7 @@ configure_ip()
 	ESP_ERROR_CHECK(esp_netif_set_ip_info(ap_handle, &ip));
 
 	ESP_ERROR_CHECK(esp_netif_dhcps_start(ap_handle));
+	ESP_LOGI(TAG, "DHCP Server Started on %s\n", AP_IP_ADDRESS);
 }
 
 
